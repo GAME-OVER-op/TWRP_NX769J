@@ -1,0 +1,13 @@
+NX769J stage01_patch00
+
+Changes:
+- Added vendor/lib64/libion.so from zorn recovery crypto stack.
+- Added vendor/lib64/libssd.so from zorn recovery crypto stack.
+- Added vendor/lib64/libkeymasterprovision.so from zorn.
+- Added vendor/lib64/libkeymaster_portable.so from zorn.
+- Added vendor/lib64/lib_android_keymaster_keymint_utils.so from zorn.
+- Kept stage01 qseecomd/keymint/gatekeeper/vintf changes.
+
+Purpose:
+- Fix gatekeeper/keymint linker failure on missing libion.so.
+- Fix qseecomd listener startup failure on missing libssd.so.

@@ -1,0 +1,14 @@
+device_NX769J stage00
+
+Applied decryption-prep flow from android_device_xiaomi_zorn_OFRP to the NX769J tree.
+
+Changes:
+- Added vendor/bin/prepdecrypt.sh adapted for NX769J defaults.
+- Added vendor/etc/init/prepdecrypt.rc.
+- Added vendor/etc/init/qseecomd.rc using /system/bin/qseecomd already present in the tree.
+- Updated recovery/root/init.recovery.qcom.rc to set prepdecrypt.setpatch, prepare qseecom/ion permissions, install keyring, and start prepdecrypt on encrypted dynamic-partition boots.
+- Switched TW_USE_FSCRYPT_POLICY from 3 to 2 to align with the working zorn decryption flow.
+
+Notes:
+- Touch-related Xiaomi-specific files were intentionally not merged.
+- This archive contains source changes only; final runtime success still depends on the build environment and matching proprietary components.

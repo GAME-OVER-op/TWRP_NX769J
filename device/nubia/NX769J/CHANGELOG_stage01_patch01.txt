@@ -1,0 +1,9 @@
+NX769J stage01_patch01
+
+Changes:
+- Added wider recovery crypto dependency closure from zorn for qseecomd/keymint/gatekeeper.
+- Added libgpt.so and related runtime-loaded qseecomd libraries.
+- Added dmabuf/drm/time/common ndk vendor libs used by recovery crypto stack.
+- Replaced vendor/etc/vintf/manifest.xml and compatibility_matrix.xml with libvintf-compatible 7.0 variants from zorn.
+- Kept NX769J base tree and previous decrypt-stage changes.
+- GitHub Actions package continues to use ubuntu-22.04.

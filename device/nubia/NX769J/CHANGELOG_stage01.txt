@@ -1,0 +1,38 @@
+Stage 01
+
+Purpose:
+- Extend stage00 with a fuller recovery crypto stack to move NX769J closer to working /data decryption.
+
+Changes:
+- Switched qseecomd launch from /system/bin/qseecomd to /vendor/bin/qseecomd using recovery-style rc.
+- Added vendor crypto binaries from the working zorn recovery:
+  - vendor/bin/qseecomd
+  - vendor/bin/hw/android.hardware.security.keymint-service-qti
+  - vendor/bin/hw/android.hardware.gatekeeper-service-qti
+- Added missing runtime library vendor/lib64/librpmb.so required by qseecomd.
+- Added keymint/gatekeeper-related vendor libraries from zorn recovery:
+  - android.hardware.gatekeeper-V1-ndk.so
+  - android.hardware.keymaster@4.0.so
+  - android.hardware.keymaster@4.1.so
+  - android.hardware.security.keymint-V3-ndk.so
+  - android.hardware.security.rkp-V3-ndk.so
+  - android.hardware.security.secureclock-V1-ndk.so
+  - android.hardware.security.sharedsecret-V1-ndk.so
+  - libqtikeymint.so
+  - libkeymaster_messages.so
+  - libkeymasterdeviceutils.so
+  - libkeymasterutils.so
+  - vendor/lib64/hw/libqtigatekeeper.so
+- Added recovery rc files for keymint and gatekeeper.
+- Replaced the previous ad-hoc vendor VINTF setup with stock NX vendor recovery-style files:
+  - vendor/etc/vintf/manifest.xml
+  - vendor/etc/vintf/compatibility_matrix.xml
+  - vendor/etc/vintf/manifest/android.hardware.security.keymint-service-qti.xml
+- Added a minimal split manifest for android.hardware.gatekeeper service in recovery.
+- Removed the previous incorrect recovery/root/vendor/manifest.xml file.
+- Removed the old recovery/root/system/bin/qseecomd copy to avoid path confusion.
+
+Notes:
+- This is still a best-effort patch. It is designed to fix the specific stage00 failures seen in logs:
+  missing librpmb.so and broken vendor VINTF/service wiring.
+- It does not copy Xiaomi-specific strongbox/NXP secure element pieces.

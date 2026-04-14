@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Minimal vendor VINTF manifest for NX769J recovery.
+  Purpose:
+  - stay compatible with old libvintf (<= 4.0)
+  - avoid parsing failures on manifest.version 7.0
+  - let recovery merge only the HALs that are explicitly provided as fragments
+    in /vendor/etc/vintf/manifest/
+
+  Notes:
+  - Base manifest intentionally stays minimal.
+  - Gatekeeper and KeyMint are declared by separate fragment XML files already
+    present in this tree:
+      /vendor/etc/vintf/manifest/android.hardware.gatekeeper-service-qti.xml
+      /vendor/etc/vintf/manifest/android.hardware.security.keymint-service-qti.xml
+  - Do not add HALs here unless the corresponding service/binary is actually
+    shipped in recovery.
+-->
+<manifest version="1.0" type="device" target-level="8">
+    <sepolicy>
+        <version>34.0</version>
+    </sepolicy>
+</manifest>
