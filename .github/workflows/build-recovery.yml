@@ -1,0 +1,88 @@
+name: Build NX769J Recovery
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show runner info
+        run: |
+          uname -a
+          df -h
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /usr/local/lib/android || true
+          sudo apt-get clean
+          df -h
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            git-core gnupg flex bison build-essential zip curl zlib1g-dev \
+            gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev \
+            x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev \
+            libxml2-utils xsltproc unzip fontconfig openjdk-11-jdk \
+            python3 python-is-python3 rsync schedtool liblz4-tool \
+            pngcrush jq bc cpio libssl-dev libncurses5-dev \
+            lib32readline-dev ca-certificates
+
+      - name: Install repo tool
+        run: |
+          mkdir -p ~/.bin
+          curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo -o ~/.bin/repo
+          chmod a+rx ~/.bin/repo
+          echo "$HOME/.bin" >> $GITHUB_PATH
+
+      - name: Configure git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Initialize source tree
+        run: |
+          mkdir -p ~/android
+          cd ~/android
+          repo init -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git -b twrp-12.1 --depth=1
+          repo sync -c --no-clone-bundle --no-tags -j2
+
+      - name: Install device tree
+        run: |
+          cd ~/android
+          mkdir -p device/nubia
+          rm -rf device/nubia/NX769J
+          cp -a "$GITHUB_WORKSPACE/device/nubia/NX769J" device/nubia/
+
+      - name: Build recovery
+        shell: bash
+        run: |
+          cd ~/android
+          source build/envsetup.sh
+          export ALLOW_MISSING_DEPENDENCIES=true
+          lunch twrp_NX769J-eng || lunch omni_NX769J-eng
+          make recoveryimage -j2
+
+      - name: Collect outputs
+        if: always()
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/out_artifacts"
+          find ~/android/out/target/product -type f \( -name "recovery.img" -o -name "*.zip" -o -name "*.log" \) \
+            -exec cp -v {} "$GITHUB_WORKSPACE/out_artifacts/" \; || true
+          ls -lah "$GITHUB_WORKSPACE/out_artifacts" || true
+
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nx769j-build-artifacts
+          path: out_artifacts
+          if-no-files-found: warn

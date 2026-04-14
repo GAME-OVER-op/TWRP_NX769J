@@ -1,0 +1,14 @@
+NX769J stage01_patch02
+
+What changed:
+- Replaced recovery/root/vendor/etc/vintf/manifest.xml with a minimal device VINTF manifest compatible with older libvintf parsers.
+- Replaced recovery/root/vendor/etc/vintf/compatibility_matrix.xml with a minimal device compatibility matrix.
+- Kept vendor VINTF fragments in recovery/root/vendor/etc/vintf/manifest/ unchanged.
+
+Goal:
+- Remove the immediate parse blocker caused by manifest.version 7.0 on older libvintf in recovery.
+- Preserve target-level 8 while avoiding a full zorn vendor manifest in NX769J recovery.
+
+Notes:
+- This patch is intended to get past the VINTF parse failure first.
+- If recovery still hangs on splash, the next likely blockers are qseecomd / keystore2 runtime startup rather than XML meta-version parsing.
