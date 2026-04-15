@@ -1,4 +1,4 @@
-on init
+on property:twrp.decrypt.fs_ready=1
     start vendor.qseecomd
 
 service vendor.qseecomd /vendor/bin/qseecomd

@@ -39,8 +39,15 @@ on property:ro.boot.usbcontroller=*
 on fs
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
+    wait /dev/qseecom 5
     chmod 0660 /dev/qseecom
     chown system drmrpc /dev/qseecom
+    wait /dev/smcinvoke 5
+    chmod 0660 /dev/smcinvoke
+    chown system drmrpc /dev/smcinvoke
+    wait /dev/qsee_ipc_irq_spss 5
+    chmod 0660 /dev/qsee_ipc_irq_spss
+    chown system drmrpc /dev/qsee_ipc_irq_spss
     chmod 0664 /dev/ion
     chown system system /dev/ion
     mkdir /mnt/vendor 0775 shell system
@@ -48,6 +55,7 @@ on fs
     mkdir /tmp/persist 0775 shell system
     mount none /tmp/persist /mnt/vendor/persist bind rec
     install_keyring
+    setprop twrp.decrypt.fs_ready 1
 
 on property:ro.crypto.state=encrypted && property:ro.boot.dynamic_partitions=true
     start prepdecrypt.vendor

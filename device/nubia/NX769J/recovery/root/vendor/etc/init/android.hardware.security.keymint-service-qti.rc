@@ -1,4 +1,4 @@
-on init
+on property:init.svc.vendor.qseecomd=running
     start vendor.keymint-qti
 
 service vendor.keymint-qti /vendor/bin/hw/android.hardware.security.keymint-service-qti

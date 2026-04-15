@@ -1,4 +1,4 @@
-on init
+on property:init.svc.vendor.qseecomd=running
     start vendor.gatekeeper_default
 
 service vendor.gatekeeper_default /vendor/bin/hw/android.hardware.gatekeeper-service-qti

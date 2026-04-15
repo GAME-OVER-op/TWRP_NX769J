@@ -1,0 +1,12 @@
+stage01_patch03
+
+Что изменено:
+- Исправлен путь vendor ueventd: добавлен recovery/root/vendor/etc/ueventd.rc на основе уже имеющегося vendor/ueventd.rc.
+- Добавлены wait/chmod/chown для /dev/smcinvoke и /dev/qsee_ipc_irq_spss в init.recovery.qcom.rc.
+- Перенесен старт vendor.qseecomd с on init на property:twrp.decrypt.fs_ready=1 после fs-подготовки.
+- Перенесен старт keymint/gatekeeper на момент, когда vendor.qseecomd уже работает.
+- Добавлен recovery-keystore2-failsafe.rc: keystore2 останавливается на boot и запускается после старта qseecomd, чтобы избежать жесткого цикла падений на логотипе.
+
+Зачем:
+- По log5.txt qseecomd падает с 'Failed to open invoke driver, errno = 13', после чего не поднимаются KeyMint/SharedSecret и keystore2 уходит в цикл SIGABRT.
+- Наиболее вероятная причина: правила прав доступа для /dev/smcinvoke не загружались, потому что system/etc/ueventd.rc импортирует /vendor/etc/ueventd.rc, а файл лежал в /vendor/ueventd.rc.
