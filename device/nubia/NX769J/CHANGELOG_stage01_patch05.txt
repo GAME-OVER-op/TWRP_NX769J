@@ -1,0 +1,7 @@
+Stage01 Patch05
+================
+- Disabled automatic crypto/decrypt bootstrap so recovery can reach UI without waiting for keymaster.
+- BoardConfig.mk: disabled TW_INCLUDE_CRYPTO, TW_INCLUDE_CRYPTO_FBE, TW_INCLUDE_FBE_METADATA_DECRYPT, BOARD_USES_QCOM_FBE_DECRYPTION.
+- init.recovery.qcom.rc: disabled prepdecrypt bootstrap trigger.
+- recovery.fstab and twrp.flags: removed metadata/file encryption flags from /metadata and /data.
+- Disabled automatic boot-time start of qseecomd, keymint, gatekeeper, and kept keystore2 stopped during boot.
