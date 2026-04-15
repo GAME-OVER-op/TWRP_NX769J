@@ -1,0 +1,13 @@
+Stage01 Patch04
+
+What changed
+- Fixed qseecomd init trigger: replaced invalid private-property trigger with a valid post-fs trigger.
+- Moved keystore2 failsafe stop to init and restart to qseecomd-running state.
+- Removed now-unused twrp.decrypt.fs_ready property set from init.recovery.qcom.rc.
+
+Why
+- Patch03 left /vendor/etc/init/qseecomd.rc unparsable in recovery init, so vendor.qseecomd was never registered.
+- recovery then blocked waiting for android.system.keystore2.IKeystoreService/default during metadata/keymaster decrypt path.
+
+Goal
+- Restore valid qseecomd registration and a sane security service startup order so recovery can proceed past logo.

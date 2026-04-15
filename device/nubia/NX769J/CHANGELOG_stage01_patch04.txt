@@ -1,0 +1,5 @@
+Stage01 Patch04
+
+- qseecomd.rc: use post-fs trigger instead of invalid twrp.decrypt.fs_ready property trigger.
+- recovery-keystore2-failsafe.rc: stop keystore2 on init and restart only after vendor.qseecomd is running.
+- init.recovery.qcom.rc: removed unused twrp.decrypt.fs_ready property set.
