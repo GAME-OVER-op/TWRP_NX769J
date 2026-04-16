@@ -1,0 +1,17 @@
+Stage01 Patch07
+- Added runtime shim library directory at /twrp-lib64 from stock lib64 dump.
+- Added libs for keymint/gatekeeper dependency chain:
+  libapexsupport.so
+  libvndksupport.so
+  libdl_android.so
+  libbinder.so
+  libbinder_ndk.so
+  libbase.so
+  libcutils.so
+  libutils.so
+  liblog.so
+  libhidlbase.so
+  libhardware.so
+  libcrypto.so
+- Updated keymint and gatekeeper init services to prepend /twrp-lib64 to LD_LIBRARY_PATH.
+Goal: satisfy missing libapexsupport/libbinder runtime deps without modifying mounted vendor partition.
