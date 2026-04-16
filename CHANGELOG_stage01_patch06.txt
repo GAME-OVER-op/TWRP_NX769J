@@ -1,0 +1,18 @@
+Stage01 Patch06
+
+Goal:
+- restore decrypt path while keeping qseecomd/keymint startup ordering from patch04
+- attempt to satisfy Android 14 vendor binder runtime by re-enabling APEX support
+- try to provide libapexsupport/libvndksupport into recovery runtime if the build tree exposes them
+
+Changes:
+- restored crypto flags in BoardConfig.mk
+- restored metadata/fileencryption flags in recovery.fstab and twrp.flags
+- restored qseecomd/keymint/gatekeeper/keystore2 startup files from patch04
+- changed TW_EXCLUDE_APEX := false
+- added libapexsupport and libvndksupport to PRODUCT_PACKAGES
+- updated prebuilt/Android.mk to copy built libapexsupport.so/libvndksupport.so into recovery runtime when available
+
+Notes:
+- patch06 is a best-effort attempt to resolve keymint linker failure seen in log7
+- if libapexsupport is absent from the twrp-12.1 source tree, the copy step is harmless and decrypt may still fail

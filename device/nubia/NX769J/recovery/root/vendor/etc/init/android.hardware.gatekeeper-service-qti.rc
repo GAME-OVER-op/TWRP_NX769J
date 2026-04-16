@@ -1,9 +1,7 @@
-# patch05: disable automatic security HAL startup during boot
-# on property:init.svc.vendor.qseecomd=running
-#     start vendor.gatekeeper_default
+on property:init.svc.vendor.qseecomd=running
+    start vendor.gatekeeper_default
 
 service vendor.gatekeeper_default /vendor/bin/hw/android.hardware.gatekeeper-service-qti
-    disabled
     class early_hal
     user root
     group root

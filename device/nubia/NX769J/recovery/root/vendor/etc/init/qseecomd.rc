@@ -1,9 +1,7 @@
-# patch05: disable automatic qseecomd start during boot
-# on post-fs
-#     start vendor.qseecomd
+on post-fs
+    start vendor.qseecomd
 
 service vendor.qseecomd /vendor/bin/qseecomd
-    disabled
     socket notify-topology stream 660 system drmrpc
     class core
     user root
