@@ -1,0 +1,2 @@
+stage02 patch11
+- workflow: make legacy ncurses compatibility step robust by linking libncurses.so.5 and libtinfo.so.5 from actual lib*.so.6 locations found via ldconfig and creating links in both /usr/lib/x86_64-linux-gnu and /lib/x86_64-linux-gnu.

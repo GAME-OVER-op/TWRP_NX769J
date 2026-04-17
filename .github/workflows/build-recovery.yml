@@ -65,14 +65,20 @@ jobs:
 
       - name: Ensure legacy ncurses compatibility
         run: |
-          ls -l /usr/lib/x86_64-linux-gnu/libncurses.so* /usr/lib/x86_64-linux-gnu/libtinfo.so* || true
-          if [ ! -e /usr/lib/x86_64-linux-gnu/libncurses.so.5 ] && [ -e /usr/lib/x86_64-linux-gnu/libncurses.so.6 ]; then
-            sudo ln -sf /usr/lib/x86_64-linux-gnu/libncurses.so.6 /usr/lib/x86_64-linux-gnu/libncurses.so.5
-          fi
-          if [ ! -e /usr/lib/x86_64-linux-gnu/libtinfo.so.5 ] && [ -e /usr/lib/x86_64-linux-gnu/libtinfo.so.6 ]; then
-            sudo ln -sf /usr/lib/x86_64-linux-gnu/libtinfo.so.6 /usr/lib/x86_64-linux-gnu/libtinfo.so.5
-          fi
-          ls -l /usr/lib/x86_64-linux-gnu/libncurses.so* /usr/lib/x86_64-linux-gnu/libtinfo.so* || true
+          set -e
+          ldconfig -p | grep -E 'libncurses\.so\.6|libtinfo\.so\.6' || true
+          ncurses_src="$(ldconfig -p | awk '/libncurses\.so\.6 /{print $NF; exit}')"
+          tinfo_src="$(ldconfig -p | awk '/libtinfo\.so\.6 /{print $NF; exit}')"
+          [ -n "$ncurses_src" ] || ncurses_src=/lib/x86_64-linux-gnu/libncurses.so.6
+          [ -n "$tinfo_src" ] || tinfo_src=/lib/x86_64-linux-gnu/libtinfo.so.6
+          test -e "$ncurses_src"
+          test -e "$tinfo_src"
+          sudo mkdir -p /usr/lib/x86_64-linux-gnu /lib/x86_64-linux-gnu
+          sudo ln -sf "$ncurses_src" /usr/lib/x86_64-linux-gnu/libncurses.so.5
+          sudo ln -sf "$ncurses_src" /lib/x86_64-linux-gnu/libncurses.so.5
+          sudo ln -sf "$tinfo_src" /usr/lib/x86_64-linux-gnu/libtinfo.so.5
+          sudo ln -sf "$tinfo_src" /lib/x86_64-linux-gnu/libtinfo.so.5
+          ls -l /usr/lib/x86_64-linux-gnu/libncurses.so.5 /usr/lib/x86_64-linux-gnu/libtinfo.so.5 /lib/x86_64-linux-gnu/libncurses.so.5 /lib/x86_64-linux-gnu/libtinfo.so.5
 
       - name: Configure git
         run: |
