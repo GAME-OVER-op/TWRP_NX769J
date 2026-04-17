@@ -115,13 +115,13 @@ jobs:
         run: |
           cd "$HOME/android"
           if [ -f bootable/recovery/Android.mk ]; then
-            grep -Ev 'libminivold_static|libfsck_msdos' bootable/recovery/Android.mk > bootable/recovery/Android.mk.tmp
+            grep -Ev 'libminivold_static|libfsck_msdos|libminipigz_static' bootable/recovery/Android.mk > bootable/recovery/Android.mk.tmp
             mv bootable/recovery/Android.mk.tmp bootable/recovery/Android.mk
           fi
           if [ -f bootable/recovery/recovery_cmds.h ]; then
             python3 -c 'from pathlib import Path; p=Path("bootable/recovery/recovery_cmds.h"); s=p.read_text(); s=s.replace("int vold_main(int argc, char **argv);", "static inline int vold_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }"); p.write_text(s)'
           fi
-          grep -nE 'libminivold_static|libfsck_msdos' bootable/recovery/Android.mk || true
+          grep -nE 'libminivold_static|libfsck_msdos|libminipigz_static' bootable/recovery/Android.mk || true
           grep -n 'vold_main' bootable/recovery/recovery_cmds.h || true
 
       - name: Start build

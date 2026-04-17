@@ -1,0 +1,4 @@
+Stage02 Patch15
+
+- Updated workflow patch for bootable/recovery/Android.mk to also remove legacy dependency libminipigz_static during GitHub Actions build bring-up.
+- Kept previous legacy stubs and environment compatibility fixes intact.
