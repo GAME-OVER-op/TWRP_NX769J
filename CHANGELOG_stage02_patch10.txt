@@ -1,0 +1,4 @@
+Stage02 patch10
+- workflow: add libncurses5 and libtinfo5 on ubuntu-22.04
+- workflow: add compatibility symlinks for libncurses.so.5 and libtinfo.so.5 if the legacy sonames are missing
+- no device tree changes
