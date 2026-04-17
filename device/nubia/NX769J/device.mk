@@ -26,12 +26,10 @@ PRODUCT_PACKAGES += \
     bootctrl.nubia_sm8650.recovery \
     android.hardware.boot@1.2-impl-qti.recovery \
     qcom_decrypt \
-    qcom_decrypt_fbe \
-    libapexsupport \
-    libvndksupport
+    qcom_decrypt_fbe
 
 # SHIPPING API
-PRODUCT_SHIPPING_API_LEVEL := 32
+PRODUCT_SHIPPING_API_LEVEL := 34
 
 # VNDK API
 PRODUCT_TARGET_VNDK_VERSION := 34

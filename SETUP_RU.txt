@@ -1,11 +1,12 @@
-1) Создай новый GitHub repository.
+1) Создай новый GitHub repository или обнови текущий.
 2) Залей содержимое этого архива в корень репозитория.
 3) Открой вкладку Actions и включи workflow.
 4) Запусти Build NX769J Recovery.
 5) После сборки скачай artifact.
 6) Если будет ошибка — пришли build.log.
 
-
-Обновление stage01_patch00:
-- workflow переведён на ubuntu-22.04
-- device tree обновлён: добавлены libion.so и libssd.so из zorn
+Обновление stage02_patch00:
+- workflow переведён на LineageOS/TWRP twrp-14.1
+- Java обновлена до openjdk-17-jdk
+- device tree очищен от старых shim-библиотек /twrp-lib64
+- удалён вложенный .git из device/nubia/NX769J

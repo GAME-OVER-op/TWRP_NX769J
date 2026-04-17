@@ -1,10 +1,10 @@
 # NX769J Recovery GitHub Actions repo
 
-Готовый шаблон репозитория для сборки recovery через GitHub Actions без собственного сервера.
+Шаблон репозитория для сборки recovery через GitHub Actions на новой базе TWRP 14.1.
 
 ## Что внутри
 
-- `device/nubia/NX769J` — device tree с внесённым decrypt patch stage00
+- `device/nubia/NX769J` — device tree NX769J, очищенный от старых runtime shim-костылей для базы 12.1
 - `.github/workflows/build-recovery.yml` — workflow ручного запуска
 - `scripts/dispatch_workflow.sh` — запуск сборки через GitHub API
 - `scripts/list_runs.sh` — просмотр последних запусков
@@ -12,65 +12,28 @@
 
 ## Что делать
 
-1. Создай новый GitHub repository.
+1. Создай новый GitHub repository или обнови текущий.
 2. Распакуй этот архив.
 3. Залей все файлы в корень репозитория.
-4. Открой вкладку `Actions` и включи workflow, если GitHub попросит это сделать.
-5. Запусти workflow вручную:
-   - через вкладку `Actions`
-   - или через `scripts/dispatch_workflow.sh`
+4. Открой вкладку `Actions` и включи workflow.
+5. Запусти `Build NX769J Recovery`.
+6. Если сборка упадёт — пришли `build.log`.
 
-## Быстрый запуск через веб
+## База сборки
 
-- Repo -> `Actions`
-- Выбери `Build NX769J Recovery`
-- Нажми `Run workflow`
-- Оставь значения по умолчанию
+По умолчанию workflow использует:
+- manifest: `https://github.com/minimal-manifest-twrp/platform_manifest_twrp_lineageos.git`
+- branch: `twrp-14.1`
+- lunch: `twrp_NX769J-eng`
+- build target: `recoveryimage`
 
-## Быстрый запуск через API
+## Что изменено для stage02
 
-Создай Personal Access Token с правами на репозиторий и Actions.
+- workflow переведён на TWRP/LineageOS `twrp-14.1`
+- JDK обновлён до `openjdk-17-jdk`
+- device tree возвращён к чистой crypto-базе без `/twrp-lib64` shim-библиотек
+- удалён вложенный `.git` из `device/nubia/NX769J`, чтобы папка не считалась submodule
 
-Пример:
+## Важное
 
-```bash
-bash scripts/dispatch_workflow.sh OWNER REPO YOUR_TOKEN main
-```
-
-Проверить статусы:
-
-```bash
-bash scripts/list_runs.sh OWNER REPO YOUR_TOKEN
-```
-
-Скачать артефакты:
-
-```bash
-bash scripts/download_artifacts.sh OWNER REPO YOUR_TOKEN RUN_ID
-```
-
-## Важные замечания
-
-- По умолчанию workflow использует:
-  - manifest: `https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git`
-  - branch: `twrp-12.1`
-  - lunch: `twrp_NX769J-eng`
-- Если сборка упадёт, первым делом открой `build.log` в артефактах.
-- Самые частые причины падения:
-  - не хватает зависимостей в manifest
-  - device tree ожидает дополнительные vendor blobs
-  - нужен другой branch manifest
-  - нужен дополнительный common tree
-
-## Что менять при необходимости
-
-Открыть `.github/workflows/build-recovery.yml` и изменить inputs по умолчанию:
-- `manifest_url`
-- `manifest_branch`
-- `device_path`
-- `lunch_target`
-- `build_target`
-
-## Текущий stage
-
-Это архив стадии `stage00`.
+Это заготовка для переноса на новую базу. Она предназначена как следующий стартовый этап после упора старой базы 12.1 в binder/keymint несовместимость.

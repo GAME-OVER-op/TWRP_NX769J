@@ -31,7 +31,7 @@ jobs:
             git-core gnupg flex bison build-essential zip curl zlib1g-dev \
             gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev \
             x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev \
-            libxml2-utils xsltproc unzip fontconfig openjdk-11-jdk \
+            libxml2-utils xsltproc unzip fontconfig openjdk-17-jdk \
             python3 python-is-python3 rsync schedtool liblz4-tool \
             pngcrush jq bc cpio libssl-dev libncurses5-dev \
             lib32readline-dev ca-certificates
@@ -52,8 +52,8 @@ jobs:
         run: |
           mkdir -p ~/android
           cd ~/android
-          repo init -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git -b twrp-12.1 --depth=1
-          repo sync -c --no-clone-bundle --no-tags -j2
+          repo init -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_lineageos.git -b twrp-14.1 --depth=1
+          repo sync -c --no-clone-bundle --no-tags -j2 || repo sync -c --force-sync --no-clone-bundle --no-tags -j1
 
       - name: Install device tree
         run: |
@@ -69,7 +69,7 @@ jobs:
           source build/envsetup.sh
           export ALLOW_MISSING_DEPENDENCIES=true
           lunch twrp_NX769J-eng || lunch omni_NX769J-eng
-          make recoveryimage -j2
+          mka recoveryimage -j$(nproc)
 
       - name: Collect outputs
         if: always()

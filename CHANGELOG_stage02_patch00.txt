@@ -1,0 +1,13 @@
+stage02_patch00
+
+Что изменено:
+- Репозиторий переведён на базу сборки TWRP 14.1 через platform_manifest_twrp_lineageos:twrp-14.1.
+- Workflow обновлён до openjdk-17-jdk и mka recoveryimage.
+- Device tree NX769J взят из чистой crypto-базы до старых shim-патчей /twrp-lib64.
+- Удалён вложенный .git внутри device/nubia/NX769J, чтобы GitHub репозиторий не воспринимал дерево как submodule.
+- BoardConfig очищен от старого PLATFORM_VERSION := 16.1.0 хак-блока.
+- TW_EXCLUDE_APEX переключён в false для новой базы.
+- Добавлен TW_LOAD_VENDOR_BOOT_MODULES := true как флаг новой recovery-базы.
+
+Назначение:
+- Это стартовый архив для переноса проекта NX769J на новую базу 14.1 и дальнейшей отладки decrypt уже без ограничений старой 12.1 binder/runtime базы.

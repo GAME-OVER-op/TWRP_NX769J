@@ -28,8 +28,7 @@
 on init
     write /sys/class/backlight/panel0-backlight/brightness 200
     setprop sys.usb.configfs 1
-    # patch05: disable automatic prepdecrypt bootstrap to avoid hanging on keymaster wait
-    # setprop prepdecrypt.setpatch true
+    setprop prepdecrypt.setpatch true
 
 on property:ro.boot.usbcontroller=*
     setprop sys.usb.controller ${ro.boot.usbcontroller}
@@ -57,6 +56,5 @@ on fs
     mount none /tmp/persist /mnt/vendor/persist bind rec
     install_keyring
 
-# patch05: automatic decrypt bootstrap disabled so recovery can enter UI without keymaster
-# on property:ro.crypto.state=encrypted && property:ro.boot.dynamic_partitions=true
-#     start prepdecrypt.vendor
+on property:ro.crypto.state=encrypted && property:ro.boot.dynamic_partitions=true
+    start prepdecrypt.vendor
