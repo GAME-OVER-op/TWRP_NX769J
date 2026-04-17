@@ -1,0 +1,14 @@
+stage01_patch09
+
+Что изменено:
+- в /twrp-lib64 добавлен libbinder_ndk.so из стокового lib64
+
+Почему:
+- в log10 gatekeeper/keymint падают на linker-ошибке:
+  cannot locate symbol "AIBinder_Class_setTransactionCodeToFunctionNameMap"
+- символ экспортируется именно из стокового libbinder_ndk.so
+- binder override libbinder.so не возвращался, чтобы не повторить ошибку memset_explicit из patch07
+
+Цель:
+- дать vendor gatekeeper/keymint стеку совместимый libbinder_ndk.so,
+  сохранив рабочий recovery UI и уже исправленный libapexsupport path.
