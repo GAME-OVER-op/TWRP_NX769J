@@ -22,11 +22,11 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 # Configure twrp common.mk
 $(call inherit-product, vendor/twrp/config/common.mk)
 
-PRODUCT_PACKAGES += \
-    bootctrl.nubia_sm8650.recovery \
-    android.hardware.boot@1.2-impl-qti.recovery \
-    qcom_decrypt \
-    qcom_decrypt_fbe
+# Stage02 patch02: keep the first 14.1 bring-up minimal.
+# Crypto / bootctrl add-ons will be restored one by one after the base image builds.
+# PRODUCT_PACKAGES += \
+#     bootctrl.nubia_sm8650 \
+#     android.hardware.boot@1.2-impl-qti
 
 # SHIPPING API
 PRODUCT_SHIPPING_API_LEVEL := 34
@@ -40,5 +40,6 @@ PRODUCT_USE_DYNAMIC_PARTITIONS := true
 # Soong namespaces
 PRODUCT_SOONG_NAMESPACES += $(DEVICE_PATH)
 
-TWRP_REQUIRED_MODULES += \
-    magicos_prebuilt
+# Stage02 patch02: do not force extra prebuilt modules during the first 14.1 bring-up.
+# TWRP_REQUIRED_MODULES += \
+#     magicos_prebuilt

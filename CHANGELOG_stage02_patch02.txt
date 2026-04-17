@@ -1,0 +1,11 @@
+stage02 patch02
+- fixed archive layout: project files are now at repository root, without an extra nested folder
+- kept the twrp-14.1 workflow from patch01
+- removed the invalid omni_NX769J fallback by keeping only twrp_NX769J-eng in workflow
+- relaxed device/nubia/NX769J/device.mk for the first 14.1 bring-up:
+  - disabled bootctrl.nubia_sm8650.recovery
+  - disabled android.hardware.boot@1.2-impl-qti.recovery
+  - disabled qcom_decrypt
+  - disabled qcom_decrypt_fbe
+  - disabled forced TWRP_REQUIRED_MODULES += magicos_prebuilt
+- improved workflow logging so lunch failures are also captured into build.log

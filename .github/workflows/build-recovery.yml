@@ -2,10 +2,35 @@ name: Build NX769J Recovery
 
 on:
   workflow_dispatch:
+    inputs:
+      manifest_url:
+        description: "Manifest URL"
+        required: true
+        default: "https://github.com/minimal-manifest-twrp/platform_manifest_twrp_lineageos.git"
+      manifest_branch:
+        description: "Manifest branch"
+        required: true
+        default: "twrp-14.1"
+      device_path:
+        description: "Device tree install path in source tree"
+        required: true
+        default: "device/nubia/NX769J"
+      lunch_target:
+        description: "Lunch target"
+        required: true
+        default: "twrp_NX769J-eng"
+      build_target:
+        description: "Make target"
+        required: true
+        default: "recoveryimage"
+
+permissions:
+  contents: read
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
 
     steps:
       - name: Checkout repository
@@ -15,6 +40,7 @@ jobs:
         run: |
           uname -a
           df -h
+          free -h || true
 
       - name: Free disk space
         run: |
@@ -28,61 +54,68 @@ jobs:
         run: |
           sudo apt-get update
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-            git-core gnupg flex bison build-essential zip curl zlib1g-dev \
-            gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev \
-            x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev \
-            libxml2-utils xsltproc unzip fontconfig openjdk-17-jdk \
-            python3 python-is-python3 rsync schedtool liblz4-tool \
-            pngcrush jq bc cpio libssl-dev libncurses5-dev \
-            lib32readline-dev ca-certificates
-
-      - name: Install repo tool
-        run: |
-          mkdir -p ~/.bin
-          curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo -o ~/.bin/repo
-          chmod a+rx ~/.bin/repo
-          echo "$HOME/.bin" >> $GITHUB_PATH
+            adb aria2 bash bc bison build-essential ccache curl flex g++-multilib \
+            gcc-multilib git git-lfs gnupg gperf imagemagick jq lib32ncurses5-dev \
+            lib32readline-dev lib32z1-dev libelf-dev liblz4-tool libncurses5 \
+            libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop openjdk-17-jdk \
+            pngcrush python-is-python3 python3 repo rsync schedtool squashfs-tools \
+            unzip xsltproc zip zlib1g-dev
 
       - name: Configure git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git lfs install
 
       - name: Initialize source tree
         run: |
-          mkdir -p ~/android
-          cd ~/android
-          repo init -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_lineageos.git -b twrp-14.1 --depth=1
-          repo sync -c --no-clone-bundle --no-tags -j2 || repo sync -c --force-sync --no-clone-bundle --no-tags -j1
+          mkdir -p "$HOME/android"
+          cd "$HOME/android"
+          repo init -u "${{ github.event.inputs.manifest_url }}" -b "${{ github.event.inputs.manifest_branch }}" --depth=1
+
+      - name: Sync source tree
+        run: |
+          cd "$HOME/android"
+          repo sync -c --no-clone-bundle --no-tags -j4
 
       - name: Install device tree
         run: |
-          cd ~/android
-          mkdir -p device/nubia
-          rm -rf device/nubia/NX769J
-          cp -a "$GITHUB_WORKSPACE/device/nubia/NX769J" device/nubia/
+          cd "$HOME/android"
+          mkdir -p "$(dirname "${{ github.event.inputs.device_path }}")"
+          rm -rf "${{ github.event.inputs.device_path }}"
+          cp -a "$GITHUB_WORKSPACE/device/nubia/NX769J" "${{ github.event.inputs.device_path }}"
+          test -f "${{ github.event.inputs.device_path }}/BoardConfig.mk"
+          test -f "${{ github.event.inputs.device_path }}/twrp_NX769J.mk"
 
-      - name: Build recovery
+      - name: Start build
         shell: bash
         run: |
-          cd ~/android
+          set -eo pipefail
+          cd "$HOME/android"
           source build/envsetup.sh
           export ALLOW_MISSING_DEPENDENCIES=true
-          lunch twrp_NX769J-eng || lunch omni_NX769J-eng
-          mka recoveryimage -j$(nproc)
+          {
+            echo "=== lunch ${GITHUB_EVENT_INPUTS_LUNCH_TARGET:-${{ github.event.inputs.lunch_target }}} ==="
+            lunch "${{ github.event.inputs.lunch_target }}"
+            echo "=== mka ${{ github.event.inputs.build_target }} ==="
+            mka "${{ github.event.inputs.build_target }}" -j"$(nproc 2>/dev/null || echo 4)"
+          } 2>&1 | tee "$GITHUB_WORKSPACE/build.log"
 
       - name: Collect outputs
         if: always()
         run: |
           mkdir -p "$GITHUB_WORKSPACE/out_artifacts"
-          find ~/android/out/target/product -type f \( -name "recovery.img" -o -name "*.zip" -o -name "*.log" \) \
-            -exec cp -v {} "$GITHUB_WORKSPACE/out_artifacts/" \; || true
+          cd "$HOME/android"
+          find out/target/product -type f \( -name 'recovery.img' -o -name '*.zip' -o -name 'vendor_boot*.img' -o -name 'boot*.img' \) -exec cp -v {} "$GITHUB_WORKSPACE/out_artifacts/" \; || true
+          cp -v "$GITHUB_WORKSPACE/build.log" "$GITHUB_WORKSPACE/out_artifacts/" || true
           ls -lah "$GITHUB_WORKSPACE/out_artifacts" || true
 
       - name: Upload build artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nx769j-build-artifacts
-          path: out_artifacts
+          name: nx769j-recovery-${{ github.run_number }}
+          path: |
+            out_artifacts/*
           if-no-files-found: warn
+          retention-days: 14
