@@ -1,0 +1,3 @@
+stage02_patch04
+- device.mk: switched product includes back to $(SRC_TARGET_DIR)/product/... for compatibility with current twrp-14.1 source tree
+- workflow ncurses fixes from patch03 preserved
