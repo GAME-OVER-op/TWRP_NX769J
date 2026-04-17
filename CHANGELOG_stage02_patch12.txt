@@ -1,0 +1,3 @@
+stage02 patch12
+- patch synced bootable/recovery to remove missing libminivold_static dependency
+- add local stub for vold_main in recovery_cmds.h so recovery links without minivold
