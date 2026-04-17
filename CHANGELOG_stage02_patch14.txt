@@ -1,0 +1,3 @@
+Stage02 Patch14
+- workflow: patch bootable/recovery/Android.mk to remove libminivold_static and libfsck_msdos from recovery static libs
+- keep vold_main stub in recovery_cmds.h
