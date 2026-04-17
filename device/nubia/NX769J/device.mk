@@ -4,20 +4,25 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Configure base.mk
-$(call inherit-product, $(SRC_TARGET_DIR)/product/base.mk)
+# Helper for trees that place target product makefiles either in build/target or build/make/target.
+define inherit-product-if-exists
+$(if $(wildcard $(1)),$(call inherit-product,$(1)))
+endef
 
-# Configure core_64_bit_only.mk
-$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
+$(call inherit-product-if-exists,build/make/target/product/base.mk)
+$(call inherit-product-if-exists,build/target/product/base.mk)
 
-# Configure Virtual A/B
-$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
+$(call inherit-product-if-exists,build/make/target/product/core_64_bit_only.mk)
+$(call inherit-product-if-exists,build/target/product/core_64_bit_only.mk)
 
-# Configure virtual_ab compression.mk
-$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/compression.mk)
+$(call inherit-product-if-exists,build/make/target/product/virtual_ab_ota.mk)
+$(call inherit-product-if-exists,build/target/product/virtual_ab_ota.mk)
 
-# Configure emulated_storage.mk
-$(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
+$(call inherit-product-if-exists,build/make/target/product/virtual_ab_ota/compression.mk)
+$(call inherit-product-if-exists,build/target/product/virtual_ab_ota/compression.mk)
+
+$(call inherit-product-if-exists,build/make/target/product/emulated_storage.mk)
+$(call inherit-product-if-exists,build/target/product/emulated_storage.mk)
 
 # Configure twrp common.mk
 $(call inherit-product, vendor/twrp/config/common.mk)

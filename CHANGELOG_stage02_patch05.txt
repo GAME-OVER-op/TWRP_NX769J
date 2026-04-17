@@ -1,0 +1,3 @@
+stage02 patch05
+- make device.mk tolerant to both build/target and build/make/target layouts
+- keep ubuntu 24.04 package-name fixes
