@@ -1,0 +1,5 @@
+Stage02 Patch18
+
+- Reworked legacy recovery patching to remove the whole old vold/fsck/pigz dependency chain from bootable/recovery/Android.mk in one pass.
+- Added stubs for legacy recovery command entry points: vold_main, fsck_msdos_main, newfs_msdos_main, pigz_main, and vdc_main.
+- Removed legacy command table entries for minivold, fsck_msdos, newfs_msdos, pigz/gzip/gunzip, and vdc so the build does not keep pulling stripped tools.
