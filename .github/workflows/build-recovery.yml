@@ -112,50 +112,49 @@ jobs:
           fi
 
       - name: Patch legacy recovery sources
+        shell: bash
         run: |
           cd "$HOME/android"
-          python3 - <<'PY2'
-from pathlib import Path
+          python3 -c $'from pathlib import Path
 import re
-
-p = Path('bootable/recovery/Android.mk')
+p = Path("bootable/recovery/Android.mk")
 if p.exists():
     s = p.read_text()
     patterns = [
-        r'^.*libminivold_static.*\n?',
-        r'^.*libfsck_msdos.*\n?',
-        r'^.*libminipigz_static.*\n?',
-        r'^.*libzopfli.*\n?',
-        r'^.*system/vold/[^\s]*\.cpp.*\n?',
+        r"^.*libminivold_static.*\n?",
+        r"^.*libfsck_msdos.*\n?",
+        r"^.*libminipigz_static.*\n?",
+        r"^.*libzopfli.*\n?",
+        r"^.*system/vold/[^\s]*\.cpp.*\n?",
     ]
     for pat in patterns:
-        s = re.sub(pat, '', s, flags=re.MULTILINE)
-    p.write_text(s)
-
-p = Path('bootable/recovery/recovery_cmds.h')
+        s = re.sub(pat, "", s, flags=re.MULTILINE)
+    p.write_text(s)'
+          python3 -c $'from pathlib import Path
+import re
+p = Path("bootable/recovery/recovery_cmds.h")
 if p.exists():
     s = p.read_text()
     repls = {
-        'int vold_main(int argc, char **argv);': 'static inline int vold_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }',
-        'int fsck_msdos_main(int argc, char **argv);': 'static inline int fsck_msdos_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }',
-        'int newfs_msdos_main(int argc, char **argv);': 'static inline int newfs_msdos_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }',
-        'int pigz_main(int argc, char **argv);': 'static inline int pigz_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }',
-        'int vdc_main(int argc, char **argv);': 'static inline int vdc_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }',
+        "int vold_main(int argc, char **argv);": "static inline int vold_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }",
+        "int fsck_msdos_main(int argc, char **argv);": "static inline int fsck_msdos_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }",
+        "int newfs_msdos_main(int argc, char **argv);": "static inline int newfs_msdos_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }",
+        "int pigz_main(int argc, char **argv);": "static inline int pigz_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }",
+        "int vdc_main(int argc, char **argv);": "static inline int vdc_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }",
     }
     for k, v in repls.items():
         s = s.replace(k, v)
     for pat in [
-        r'^\s*\{\s*"minivold".*\n?',
-        r'^\s*\{\s*"fsck_msdos".*\n?',
-        r'^\s*\{\s*"newfs_msdos".*\n?',
-        r'^\s*\{\s*"pigz".*\n?',
-        r'^\s*\{\s*"gzip".*\n?',
-        r'^\s*\{\s*"gunzip".*\n?',
-        r'^\s*\{\s*"vdc".*\n?',
+        r"^\s*\{\s*\"minivold\".*\n?",
+        r"^\s*\{\s*\"fsck_msdos\".*\n?",
+        r"^\s*\{\s*\"newfs_msdos\".*\n?",
+        r"^\s*\{\s*\"pigz\".*\n?",
+        r"^\s*\{\s*\"gzip\".*\n?",
+        r"^\s*\{\s*\"gunzip\".*\n?",
+        r"^\s*\{\s*\"vdc\".*\n?",
     ]:
-        s = re.sub(pat, '', s, flags=re.MULTILINE)
-    p.write_text(s)
-PY2
+        s = re.sub(pat, "", s, flags=re.MULTILINE)
+    p.write_text(s)'
           grep -nE 'libminivold_static|libfsck_msdos|libminipigz_static|libzopfli|system/vold/' bootable/recovery/Android.mk || true
           grep -nE 'vold_main|fsck_msdos_main|newfs_msdos_main|pigz_main|vdc_main|minivold|fsck_msdos|newfs_msdos|pigz|gzip|gunzip|vdc' bootable/recovery/recovery_cmds.h || true
 
