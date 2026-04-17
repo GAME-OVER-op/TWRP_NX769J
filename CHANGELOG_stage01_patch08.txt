@@ -1,0 +1,11 @@
+Stage01 Patch08
+
+What changed:
+- Removed /twrp-lib64/libbinder.so
+- Removed /twrp-lib64/libbinder_ndk.so
+
+Reason:
+- Patch07 fixed the missing libapexsupport.so error, but overrode the binder stack.
+- log9 shows gatekeeper/keymint crash on symbol resolution:
+  cannot locate symbol "memset_explicit" referenced by "/twrp-lib64/libbinder.so"
+- Patch08 keeps the shim path for missing helper libraries, but stops replacing binder with an incompatible copy.
