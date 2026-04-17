@@ -1,0 +1,7 @@
+stage02 patch09
+- switch workflow runner to ubuntu-22.04
+- add libncurses5/libtinfo5 for legacy clang prebuilts
+- clone external/libtar (lineage-16.0) into source tree if missing
+- add TARGET_RECOVERY_FSTAB to BoardConfig
+- add root-level recovery.fstab copy
+- add BOARD_FLASH_BLOCK_SIZE and placeholder boot/vendor_boot partition sizes for bring-up

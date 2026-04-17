@@ -1,4 +1,0 @@
-stage02 patch08
-- GitHub Actions runner changed from ubuntu-24.04 to ubuntu-22.04
-- Added legacy runtime libs libncurses5 and libtinfo5 for old clang in TWRP tree
-- Kept OpenJDK 8 because this tree still expects tools.jar-era JDK layout
