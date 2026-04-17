@@ -1,0 +1,4 @@
+stage02 patch07
+- workflow switched from openjdk-17-jdk to openjdk-8-jdk
+- Start build now exports JAVA_HOME/ANDROID_JAVA_HOME/ANDROID_JAVA8_HOME to JDK8
+- added java -version/javac -version to build log

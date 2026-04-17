@@ -57,7 +57,7 @@ jobs:
             adb aria2 bash bc bison build-essential ccache curl flex g++-multilib \
             gcc-multilib git git-lfs gnupg gperf imagemagick jq lib32ncurses-dev \
             lib32readline-dev lib32z1-dev libelf-dev liblz4-tool libncurses-dev \
-            libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop openjdk-17-jdk \
+            libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop openjdk-8-jdk \
             pngcrush python-is-python3 python3 repo rsync schedtool squashfs-tools \
             unzip xsltproc zip zlib1g-dev
 
@@ -92,6 +92,12 @@ jobs:
         run: |
           set -eo pipefail
           cd "$HOME/android"
+          export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+          export ANDROID_JAVA_HOME="$JAVA_HOME"
+          export ANDROID_JAVA8_HOME="$JAVA_HOME"
+          export PATH="$JAVA_HOME/bin:$PATH"
+          java -version
+          javac -version
           source build/envsetup.sh
           export ALLOW_MISSING_DEPENDENCIES=true
           {
