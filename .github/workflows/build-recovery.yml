@@ -57,16 +57,13 @@ jobs:
             adb aria2 bash bc bison build-essential ccache curl flex g++-multilib \
             gcc-multilib git git-lfs gnupg gperf imagemagick jq lib32ncurses-dev \
             lib32readline-dev lib32z1-dev libelf-dev liblz4-tool libncurses-dev \
-            libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop openjdk-8-jdk \
-            pngcrush python-is-python3 python3 repo rsync schedtool squashfs-tools \
-            unzip xsltproc zip zlib1g-dev
-
-
+            libncurses5 libtinfo5 libsdl1.2-dev libssl-dev libxml2 libxml2-utils \
+            lzop openjdk-8-jdk pngcrush python-is-python3 python3 repo rsync \
+            schedtool squashfs-tools unzip xsltproc zip zlib1g-dev
 
       - name: Ensure legacy ncurses compatibility
         run: |
           set -e
-          ldconfig -p | grep -E 'libncurses\.so\.6|libtinfo\.so\.6' || true
           ncurses_src="$(ldconfig -p | awk '/libncurses\.so\.6 /{print $NF; exit}')"
           tinfo_src="$(ldconfig -p | awk '/libtinfo\.so\.6 /{print $NF; exit}')"
           [ -n "$ncurses_src" ] || ncurses_src=/lib/x86_64-linux-gnu/libncurses.so.6
@@ -78,7 +75,8 @@ jobs:
           sudo ln -sf "$ncurses_src" /lib/x86_64-linux-gnu/libncurses.so.5
           sudo ln -sf "$tinfo_src" /usr/lib/x86_64-linux-gnu/libtinfo.so.5
           sudo ln -sf "$tinfo_src" /lib/x86_64-linux-gnu/libtinfo.so.5
-          ls -l /usr/lib/x86_64-linux-gnu/libncurses.so.5 /usr/lib/x86_64-linux-gnu/libtinfo.so.5 /lib/x86_64-linux-gnu/libncurses.so.5 /lib/x86_64-linux-gnu/libtinfo.so.5
+          ls -l /usr/lib/x86_64-linux-gnu/libncurses.so.5 /usr/lib/x86_64-linux-gnu/libtinfo.so.5 || true
+          ls -l /lib/x86_64-linux-gnu/libncurses.so.5 /lib/x86_64-linux-gnu/libtinfo.so.5 || true
 
       - name: Configure git
         run: |
@@ -106,7 +104,6 @@ jobs:
           test -f "${{ github.event.inputs.device_path }}/BoardConfig.mk"
           test -f "${{ github.event.inputs.device_path }}/twrp_NX769J.mk"
 
-
       - name: Fetch missing legacy sources
         run: |
           cd "$HOME/android"
@@ -114,23 +111,18 @@ jobs:
             git clone --depth=1 -b lineage-16.0 https://github.com/LineageOS/android_external_libtar external/libtar
           fi
 
-
-      - name: Patch legacy minivold dependency
+      - name: Patch legacy recovery sources
         run: |
           cd "$HOME/android"
           if [ -f bootable/recovery/Android.mk ]; then
-            sed -i '/libminivold_static \/d' bootable/recovery/Android.mk
+            grep -v 'libminivold_static' bootable/recovery/Android.mk > bootable/recovery/Android.mk.tmp
+            mv bootable/recovery/Android.mk.tmp bootable/recovery/Android.mk
           fi
           if [ -f bootable/recovery/recovery_cmds.h ]; then
-            python3 - <<'EOF'
-from pathlib import Path
-p=Path('bootable/recovery/recovery_cmds.h')
-s=p.read_text()
-s=s.replace('int vold_main(int argc, char **argv);','static inline int vold_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }')
-p.write_text(s)
-EOF
+            python3 -c 'from pathlib import Path; p=Path("bootable/recovery/recovery_cmds.h"); s=p.read_text(); s=s.replace("int vold_main(int argc, char **argv);", "static inline int vold_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }"); p.write_text(s)'
           fi
-          grep -n 'libminivold_static\|vold_main' bootable/recovery/Android.mk bootable/recovery/recovery_cmds.h || true
+          grep -n 'libminivold_static' bootable/recovery/Android.mk || true
+          grep -n 'vold_main' bootable/recovery/recovery_cmds.h || true
 
       - name: Start build
         shell: bash
@@ -146,7 +138,7 @@ EOF
           source build/envsetup.sh
           export ALLOW_MISSING_DEPENDENCIES=true
           {
-            echo "=== lunch ${GITHUB_EVENT_INPUTS_LUNCH_TARGET:-${{ github.event.inputs.lunch_target }}} ==="
+            echo "=== lunch ${{ github.event.inputs.lunch_target }} ==="
             lunch "${{ github.event.inputs.lunch_target }}"
             echo "=== mka ${{ github.event.inputs.build_target }} ==="
             mka "${{ github.event.inputs.build_target }}" -j"$(nproc 2>/dev/null || echo 4)"

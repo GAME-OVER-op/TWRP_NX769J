@@ -1,0 +1,1 @@
+Stage02 patch13: fix workflow validity and robustly patch libminivold_static out of bootable/recovery.
