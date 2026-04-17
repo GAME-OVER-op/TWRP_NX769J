@@ -1,0 +1,3 @@
+stage02 patch06
+- remove missing vendor/twrp/config/common.mk include from device.mk for twrp-14.1 bring-up
+- keep stage02 patch05 source-target autodetect and workflow Ubuntu 24.04 package fixes
