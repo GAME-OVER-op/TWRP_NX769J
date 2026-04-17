@@ -1,0 +1,6 @@
+Stage02 patch03
+
+Что исправлено:
+- device/nubia/NX769J/device.mk: product include paths переведены со старого $(SRC_TARGET_DIR)/product/... на build/make/target/product/... для базы twrp-14.1
+- .github/workflows/build-recovery.yml: для Ubuntu 24.04 заменены пакеты lib32ncurses5-dev -> lib32ncurses-dev и libncurses5 -> libncurses-dev
+- .github/workflows/build-recovery.yml: шаг Collect outputs теперь не падает вторично, если каталог $HOME/android не успел создаться из-за ранней ошибки

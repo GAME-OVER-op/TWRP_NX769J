@@ -105,8 +105,10 @@ jobs:
         if: always()
         run: |
           mkdir -p "$GITHUB_WORKSPACE/out_artifacts"
-          cd "$HOME/android"
-          find out/target/product -type f \( -name 'recovery.img' -o -name '*.zip' -o -name 'vendor_boot*.img' -o -name 'boot*.img' \) -exec cp -v {} "$GITHUB_WORKSPACE/out_artifacts/" \; || true
+          if [ -d "$HOME/android" ]; then
+            cd "$HOME/android"
+            find out/target/product -type f \( -name 'recovery.img' -o -name '*.zip' -o -name 'vendor_boot*.img' -o -name 'boot*.img' \) -exec cp -v {} "$GITHUB_WORKSPACE/out_artifacts/" \; || true
+          fi
           cp -v "$GITHUB_WORKSPACE/build.log" "$GITHUB_WORKSPACE/out_artifacts/" || true
           ls -lah "$GITHUB_WORKSPACE/out_artifacts" || true
 
