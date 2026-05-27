@@ -23,6 +23,24 @@ on:
         description: "Make target"
         required: true
         default: "recoveryimage"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/build-recovery.yml"
+      - "device/nubia/NX769J/**"
+      - "scripts/**"
+      - "README.md"
+      - "SETUP_RU.txt"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/build-recovery.yml"
+      - "device/nubia/NX769J/**"
+      - "scripts/**"
+      - "README.md"
+      - "SETUP_RU.txt"
 
 permissions:
   contents: read
@@ -58,7 +76,7 @@ jobs:
             gcc-multilib git git-lfs gnupg gperf imagemagick jq lib32ncurses-dev \
             lib32readline-dev lib32z1-dev libelf-dev liblz4-tool libncurses-dev \
             libncurses5 libtinfo5 libsdl1.2-dev libssl-dev libxml2 libxml2-utils \
-            lzop openjdk-8-jdk pngcrush python-is-python3 python3 repo rsync \
+            lzop openjdk-17-jdk pngcrush python-is-python3 python3 repo rsync \
             schedtool squashfs-tools unzip xsltproc zip zlib1g-dev
 
       - name: Ensure legacy ncurses compatibility
@@ -88,7 +106,9 @@ jobs:
         run: |
           mkdir -p "$HOME/android"
           cd "$HOME/android"
-          repo init -u "${{ github.event.inputs.manifest_url }}" -b "${{ github.event.inputs.manifest_branch }}" --depth=1
+          repo init -u "${{ github.event.inputs.manifest_url || 'https://github.com/minimal-manifest-twrp/platform_manifest_twrp_lineageos.git' }}" \
+            -b "${{ github.event.inputs.manifest_branch || 'twrp-14.1' }}" \
+            --depth=1
 
       - name: Sync source tree
         run: |
@@ -98,11 +118,12 @@ jobs:
       - name: Install device tree
         run: |
           cd "$HOME/android"
-          mkdir -p "$(dirname "${{ github.event.inputs.device_path }}")"
-          rm -rf "${{ github.event.inputs.device_path }}"
-          cp -a "$GITHUB_WORKSPACE/device/nubia/NX769J" "${{ github.event.inputs.device_path }}"
-          test -f "${{ github.event.inputs.device_path }}/BoardConfig.mk"
-          test -f "${{ github.event.inputs.device_path }}/twrp_NX769J.mk"
+          DEVICE_PATH="${{ github.event.inputs.device_path || 'device/nubia/NX769J' }}"
+          mkdir -p "$(dirname "$DEVICE_PATH")"
+          rm -rf "$DEVICE_PATH"
+          cp -a "$GITHUB_WORKSPACE/device/nubia/NX769J" "$DEVICE_PATH"
+          test -f "$DEVICE_PATH/BoardConfig.mk"
+          test -f "$DEVICE_PATH/twrp_NX769J.mk"
 
       - name: Fetch missing legacy sources
         run: |
@@ -114,47 +135,54 @@ jobs:
       - name: Patch legacy recovery sources
         shell: bash
         run: |
+          set -e
           cd "$HOME/android"
-          python3 -c $'from pathlib import Path
-import re
-p = Path("bootable/recovery/Android.mk")
-if p.exists():
-    s = p.read_text()
-    patterns = [
-        r"^.*libminivold_static.*\n?",
-        r"^.*libfsck_msdos.*\n?",
-        r"^.*libminipigz_static.*\n?",
-        r"^.*libzopfli.*\n?",
-        r"^.*system/vold/[^\s]*\.cpp.*\n?",
-    ]
-    for pat in patterns:
-        s = re.sub(pat, "", s, flags=re.MULTILINE)
-    p.write_text(s)'
-          python3 -c $'from pathlib import Path
-import re
-p = Path("bootable/recovery/recovery_cmds.h")
-if p.exists():
-    s = p.read_text()
-    repls = {
-        "int vold_main(int argc, char **argv);": "static inline int vold_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }",
-        "int fsck_msdos_main(int argc, char **argv);": "static inline int fsck_msdos_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }",
-        "int newfs_msdos_main(int argc, char **argv);": "static inline int newfs_msdos_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }",
-        "int pigz_main(int argc, char **argv);": "static inline int pigz_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }",
-        "int vdc_main(int argc, char **argv);": "static inline int vdc_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }",
-    }
-    for k, v in repls.items():
-        s = s.replace(k, v)
-    for pat in [
-        r"^\s*\{\s*\"minivold\".*\n?",
-        r"^\s*\{\s*\"fsck_msdos\".*\n?",
-        r"^\s*\{\s*\"newfs_msdos\".*\n?",
-        r"^\s*\{\s*\"pigz\".*\n?",
-        r"^\s*\{\s*\"gzip\".*\n?",
-        r"^\s*\{\s*\"gunzip\".*\n?",
-        r"^\s*\{\s*\"vdc\".*\n?",
-    ]:
-        s = re.sub(pat, "", s, flags=re.MULTILINE)
-    p.write_text(s)'
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path("bootable/recovery/Android.mk")
+          if p.exists():
+              s = p.read_text()
+              patterns = [
+                  r"^.*libminivold_static.*\n?",
+                  r"^.*libfsck_msdos.*\n?",
+                  r"^.*libminipigz_static.*\n?",
+                  r"^.*libzopfli.*\n?",
+                  r"^.*system/vold/[^\s]*\.cpp.*\n?",
+              ]
+              for pat in patterns:
+                  s = re.sub(pat, "", s, flags=re.MULTILINE)
+              p.write_text(s)
+          PY
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path("bootable/recovery/recovery_cmds.h")
+          if p.exists():
+              s = p.read_text()
+              repls = {
+                  "int vold_main(int argc, char **argv);": "static inline int vold_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }",
+                  "int fsck_msdos_main(int argc, char **argv);": "static inline int fsck_msdos_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }",
+                  "int newfs_msdos_main(int argc, char **argv);": "static inline int newfs_msdos_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }",
+                  "int pigz_main(int argc, char **argv);": "static inline int pigz_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }",
+                  "int vdc_main(int argc, char **argv);": "static inline int vdc_main(int argc, char **argv) { (void)argc; (void)argv; return 0; }",
+              }
+              for old, new in repls.items():
+                  s = s.replace(old, new)
+              for pat in [
+                  r"^\s*\{\s*\"minivold\".*\n?",
+                  r"^\s*\{\s*\"fsck_msdos\".*\n?",
+                  r"^\s*\{\s*\"newfs_msdos\".*\n?",
+                  r"^\s*\{\s*\"pigz\".*\n?",
+                  r"^\s*\{\s*\"gzip\".*\n?",
+                  r"^\s*\{\s*\"gunzip\".*\n?",
+                  r"^\s*\{\s*\"vdc\".*\n?",
+              ]:
+                  s = re.sub(pat, "", s, flags=re.MULTILINE)
+              p.write_text(s)
+          PY
           grep -nE 'libminivold_static|libfsck_msdos|libminipigz_static|libzopfli|system/vold/' bootable/recovery/Android.mk || true
           grep -nE 'vold_main|fsck_msdos_main|newfs_msdos_main|pigz_main|vdc_main|minivold|fsck_msdos|newfs_msdos|pigz|gzip|gunzip|vdc' bootable/recovery/recovery_cmds.h || true
 
@@ -163,19 +191,20 @@ if p.exists():
         run: |
           set -eo pipefail
           cd "$HOME/android"
-          export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export ANDROID_JAVA_HOME="$JAVA_HOME"
-          export ANDROID_JAVA8_HOME="$JAVA_HOME"
           export PATH="$JAVA_HOME/bin:$PATH"
           java -version
           javac -version
           source build/envsetup.sh
           export ALLOW_MISSING_DEPENDENCIES=true
+          LUNCH_TARGET="${{ github.event.inputs.lunch_target || 'twrp_NX769J-eng' }}"
+          BUILD_TARGET="${{ github.event.inputs.build_target || 'recoveryimage' }}"
           {
-            echo "=== lunch ${{ github.event.inputs.lunch_target }} ==="
-            lunch "${{ github.event.inputs.lunch_target }}"
-            echo "=== mka ${{ github.event.inputs.build_target }} ==="
-            mka "${{ github.event.inputs.build_target }}" -j"$(nproc 2>/dev/null || echo 4)"
+            echo "=== lunch ${LUNCH_TARGET} ==="
+            lunch "${LUNCH_TARGET}"
+            echo "=== mka ${BUILD_TARGET} ==="
+            mka "${BUILD_TARGET}" -j"$(nproc 2>/dev/null || echo 4)"
           } 2>&1 | tee "$GITHUB_WORKSPACE/build.log"
 
       - name: Collect outputs

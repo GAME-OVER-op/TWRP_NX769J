@@ -21,8 +21,8 @@ curl -L \
 {
   "ref": "${REF}",
   "inputs": {
-    "manifest_url": "https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git",
-    "manifest_branch": "twrp-12.1",
+    "manifest_url": "https://github.com/minimal-manifest-twrp/platform_manifest_twrp_lineageos.git",
+    "manifest_branch": "twrp-14.1",
     "device_path": "device/nubia/NX769J",
     "lunch_target": "twrp_NX769J-eng",
     "build_target": "recoveryimage"

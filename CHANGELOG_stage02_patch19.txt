@@ -1,0 +1,9 @@
+Stage 02 Patch 19 - GitHub Actions workflow start fix
+
+- Fixed invalid YAML in .github/workflows/build-recovery.yml.
+- Replaced fragile inline python3 -c $'...' commands with valid heredoc Python blocks.
+- Switched workflow build dependencies from openjdk-8-jdk to openjdk-17-jdk.
+- Updated JAVA_HOME for the build step to /usr/lib/jvm/java-17-openjdk-amd64.
+- Added push and pull_request triggers for main branch changes affecting workflow, scripts, docs, or device tree.
+- Kept manual workflow_dispatch support with TWRP 14.1 defaults.
+- Updated scripts/dispatch_workflow.sh to use twrp-14.1 and the LineageOS TWRP minimal manifest by default.

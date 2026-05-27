@@ -10,3 +10,8 @@
 - Java обновлена до openjdk-17-jdk
 - device tree очищен от старых shim-библиотек /twrp-lib64
 - удалён вложенный .git из device/nubia/NX769J
+
+Patch 19:
+- Исправлен синтаксис GitHub Actions workflow.
+- Java для TWRP 14.1 переведена на openjdk-17-jdk.
+- dispatch_workflow.sh теперь использует twrp-14.1.
