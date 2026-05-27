@@ -190,12 +190,13 @@ jobs:
               p.write_text(s)
           PY
           mkdir -p bootable/recovery
-          if [ ! -f bootable/recovery/cryptfs.h ]; then
-            cat > bootable/recovery/cryptfs.h <<'EOF'
+          cat > bootable/recovery/cryptfs.h <<'EOF'
           #pragma once
-          /* Compatibility shim for legacy recovery sources. */
+          /* Compatibility shim for legacy recovery sources used by old TWRP bu_recovery. */
+          #ifndef CRYPT_FOOTER_OFFSET
+          #define CRYPT_FOOTER_OFFSET 0x4000
+          #endif
           EOF
-          fi
           if [ ! -f bootable/recovery/VolumeBase.h ]; then
             cat > bootable/recovery/VolumeBase.h <<'EOF'
           #pragma once
