@@ -76,8 +76,14 @@ jobs:
             gcc-multilib git git-lfs gnupg gperf imagemagick jq lib32ncurses-dev \
             lib32readline-dev lib32z1-dev libelf-dev liblz4-tool libncurses-dev \
             libncurses5 libtinfo5 libsdl1.2-dev libssl-dev libxml2 libxml2-utils \
-            lzop openjdk-17-jdk pngcrush python-is-python3 python3 repo rsync \
+            lzop pngcrush python-is-python3 python3 repo rsync \
             schedtool squashfs-tools unzip xsltproc zip zlib1g-dev
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
 
       - name: Ensure legacy ncurses compatibility
         run: |
@@ -191,9 +197,10 @@ jobs:
         run: |
           set -eo pipefail
           cd "$HOME/android"
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export JAVA_HOME="${JAVA_HOME_8_X64:-${JAVA_HOME}}"
           export ANDROID_JAVA_HOME="$JAVA_HOME"
           export PATH="$JAVA_HOME/bin:$PATH"
+          test -f "$JAVA_HOME/lib/tools.jar"
           java -version
           javac -version
           source build/envsetup.sh
