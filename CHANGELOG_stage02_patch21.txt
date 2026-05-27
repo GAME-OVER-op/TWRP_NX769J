@@ -1,0 +1,10 @@
+Stage 02 Patch 21
+
+- Added workflow compatibility shims for legacy TWRP recovery sources after repo sync.
+- Creates bootable/recovery/cryptfs.h when the Android 14 source tree no longer provides the old header.
+- Creates bootable/recovery/VolumeBase.h with minimal android::vold::VolumeBase::State values used by legacy voldclient.cpp.
+- Creates bootable/recovery/ResponseCode.h if the old vold response header is also missing.
+- Keeps TWRP 14.1 manifest and JDK 8 setup from previous patch.
+
+Reason:
+The GitHub Actions build reached 73% and failed in bootable/recovery because roots.cpp could not include cryptfs.h and voldclient.cpp could not include VolumeBase.h.

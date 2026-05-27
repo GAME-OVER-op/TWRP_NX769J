@@ -1,0 +1,7 @@
+Stage 02 Patch 20 - Workflow JDK 8 fix
+
+- Switched GitHub Actions Java setup from JDK 17 to JDK 8 using actions/setup-java.
+- Removed openjdk-17-jdk from apt dependencies.
+- Kept TWRP manifest branch on twrp-14.1.
+- Added explicit tools.jar check before starting the build, because this TWRP build system requires legacy JDK tools.jar.
+- Kept dispatch_workflow.sh on twrp-14.1.

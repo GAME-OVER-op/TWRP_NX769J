@@ -189,6 +189,57 @@ jobs:
                   s = re.sub(pat, "", s, flags=re.MULTILINE)
               p.write_text(s)
           PY
+          mkdir -p bootable/recovery
+          if [ ! -f bootable/recovery/cryptfs.h ]; then
+            cat > bootable/recovery/cryptfs.h <<'EOF'
+          #pragma once
+          /* Compatibility shim for legacy recovery sources. */
+          EOF
+          fi
+          if [ ! -f bootable/recovery/VolumeBase.h ]; then
+            cat > bootable/recovery/VolumeBase.h <<'EOF'
+          #pragma once
+
+          namespace android {
+          namespace vold {
+
+          class VolumeBase {
+           public:
+            enum class State {
+              kUnmounted = 0,
+              kChecking = 1,
+              kMounted = 2,
+              kMountedReadOnly = 3,
+              kFormatting = 4,
+              kEjecting = 5,
+              kUnmountable = 6,
+              kRemoved = 7,
+              kBadRemoval = 8,
+            };
+          };
+
+          }  // namespace vold
+          }  // namespace android
+          EOF
+          fi
+          if [ ! -f bootable/recovery/ResponseCode.h ]; then
+            cat > bootable/recovery/ResponseCode.h <<'EOF'
+          #pragma once
+
+          class ResponseCode {
+           public:
+            static const int CommandOkay = 200;
+            static const int VolumeCreated = 650;
+            static const int VolumeStateChanged = 651;
+            static const int VolumeFsLabelChanged = 654;
+            static const int VolumePathChanged = 655;
+            static const int VolumeInternalPathChanged = 656;
+            static const int VolumeDestroyed = 659;
+          };
+          EOF
+          fi
+          echo "Legacy compatibility headers:"
+          ls -l bootable/recovery/cryptfs.h bootable/recovery/VolumeBase.h bootable/recovery/ResponseCode.h || true
           grep -nE 'libminivold_static|libfsck_msdos|libminipigz_static|libzopfli|system/vold/' bootable/recovery/Android.mk || true
           grep -nE 'vold_main|fsck_msdos_main|newfs_msdos_main|pigz_main|vdc_main|minivold|fsck_msdos|newfs_msdos|pigz|gzip|gunzip|vdc' bootable/recovery/recovery_cmds.h || true
 
