@@ -1,0 +1,9 @@
+TWRP_NX769J stage02 patch23
+
+Build workflow fix:
+- Added a temporary SEPolicy compatibility shim for TWRP 14.1 builds.
+- Declares the missing exfat policy type in system/sepolicy/file.te before checkpolicy runs.
+- Fixes the current build error:
+  system/sepolicy/untrusted_app.te: ERROR 'unknown type exfat'
+
+This is a build-unblocking patch for first successful recoveryimage bring-up.

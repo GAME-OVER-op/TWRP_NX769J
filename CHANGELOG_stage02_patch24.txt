@@ -1,0 +1,6 @@
+Stage 02 Patch 24
+
+- Extended the temporary SEPolicy compatibility shim used by GitHub Actions.
+- Added missing removable-storage filesystem policy types used by legacy TWRP rules:
+  exfat, ntfs, fuseblk, sdcardfs, vfat.
+- Fixes the current checkpolicy failure: unknown type ntfs in system/sepolicy/untrusted_app.te.

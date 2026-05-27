@@ -1,0 +1,8 @@
+Stage 02 Patch 22
+
+- Updated GitHub Actions legacy recovery patch step.
+- Replaced the generated bootable/recovery/cryptfs.h compatibility shim on every build.
+- Added CRYPT_FOOTER_OFFSET definition required by bootable/recovery/roots.cpp.
+
+This fixes the build error:
+  error: use of undeclared identifier 'CRYPT_FOOTER_OFFSET'
