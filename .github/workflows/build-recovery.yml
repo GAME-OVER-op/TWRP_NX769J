@@ -244,6 +244,17 @@ jobs:
           grep -nE 'libminivold_static|libfsck_msdos|libminipigz_static|libzopfli|system/vold/' bootable/recovery/Android.mk || true
           grep -nE 'vold_main|fsck_msdos_main|newfs_msdos_main|pigz_main|vdc_main|minivold|fsck_msdos|newfs_msdos|pigz|gzip|gunzip|vdc' bootable/recovery/recovery_cmds.h || true
 
+          # TWRP 14.1 legacy policy compatibility: some old policy rules reference exfat,
+          # but the minimal manifest may not declare the type. Declare it before checkpolicy runs.
+          if [ -f system/sepolicy/file.te ] && ! grep -qE '^type[[:space:]]+exfat[,:]' system/sepolicy/file.te; then
+            cat >> system/sepolicy/file.te <<'EOF'
+
+          # Compatibility shim for legacy TWRP policy rules.
+          type exfat, fs_type;
+          EOF
+          fi
+          grep -nE '^type[[:space:]]+exfat[,:]' system/sepolicy/file.te || true
+
       - name: Start build
         shell: bash
         run: |
